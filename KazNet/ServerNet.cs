@@ -186,6 +186,7 @@ namespace KazNet
             catch (Exception ex)
             {
                 Console.WriteLine("ServerNet: 3. " + ex.ToString());
+                Disconnect(clientSocket);
             }
         }
         public void SendPacket(Socket _socket, byte[] _packet)
