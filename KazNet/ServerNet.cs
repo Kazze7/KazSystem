@@ -37,10 +37,12 @@ namespace KazNet
         {
             return isRunning;
         }
-        public bool IsOpen(){
+        public bool IsOpen()
+        {
             return isOpen;
         }
-        public void SetIsOpen(bool _isOpen){
+        public void SetIsOpen(bool _isOpen)
+        {
             isOpen = _isOpen;
         }
 
@@ -65,7 +67,6 @@ namespace KazNet
 
         public void Start(StatusMethod _statusMethod = null)
         {
-            statusMethod = null;
             if (!isRunning)
             {
                 isRunning = true;
@@ -89,7 +90,6 @@ namespace KazNet
             {
                 serverThread.Join();
                 serverThread = null;
-                //serverThread.Abort();
                 Console.WriteLine("ServerNet: Stop server thread");
             }
             packetQueueCheck.Set();
@@ -97,7 +97,6 @@ namespace KazNet
             {
                 queueThread.Join();
                 queueThread = null;
-                //queueThread.Abort();
                 Console.WriteLine("ServerNet: Stop queue thread");
             }
             packetQueue.Clear();
@@ -179,7 +178,6 @@ namespace KazNet
                 }
                 else
                 {
-                    //Console.WriteLine("ServerNet: Client " + clientSocket.RemoteEndPoint + " disconnect");
                     Disconnect(clientSocket);
                 }
             }
@@ -198,7 +196,6 @@ namespace KazNet
         }
         void SendPacketComplete(IAsyncResult _asyncResult)
         {
-            //Socket clientSocket;
             try
             {
                 Socket clientSocket = (Socket)_asyncResult.AsyncState;
