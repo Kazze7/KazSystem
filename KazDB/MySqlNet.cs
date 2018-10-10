@@ -71,12 +71,20 @@ namespace KazDB
         }
         public MySqlCommand SQLRequest(string _cmd)
         {
-            MySqlCommand sqlResult;
-            if (connection != null)
-                sqlResult = new MySqlCommand(_cmd, connection);
-            else
-                sqlResult = null;
-            return sqlResult;
+            try
+            {
+                MySqlCommand sqlResult;
+                if (connection != null)
+                    sqlResult = new MySqlCommand(_cmd, connection);
+                else
+                    sqlResult = null;
+                return sqlResult;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("DatabaseNet: " + ex.Message);
+                return null;
+            }
         }
     }
 }

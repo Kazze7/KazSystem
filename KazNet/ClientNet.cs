@@ -81,12 +81,6 @@ namespace KazNet
         public void Stop()
         {
             isRunning = false;
-            if (socket != null)
-            {
-                socket.Close();
-                socket = null;
-                Console.WriteLine("ServerNet: Close socket");
-            }
             if (clientThread != null)
             {
                 clientThread.Join();
@@ -101,6 +95,12 @@ namespace KazNet
                 queueThread = null;
                 //queueThread.Abort();
                 Console.WriteLine("ClientNet: Stop queue thread");
+            }
+            if (socket != null)
+            {
+                socket.Close();
+                socket = null;
+                Console.WriteLine("ClientNet: Close socket");
             }
             packetQueue.Clear();
         }

@@ -13,6 +13,7 @@ namespace KazNet
         bool isRunning = false;
         bool isOpen = true;
 
+        Socket socket;
         int port;
         int bufferSize;
         int backLog;
@@ -99,12 +100,18 @@ namespace KazNet
                 queueThread = null;
                 Console.WriteLine("ServerNet: Stop queue thread");
             }
+            if (socket != null)
+            {
+                socket.Close();
+                socket = null;
+                Console.WriteLine("ServerNet: Close socket");
+            }
             packetQueue.Clear();
         }
 
         void StartListener()
         {
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
                 socket.Bind(new IPEndPoint(IPAddress.Any, port));
