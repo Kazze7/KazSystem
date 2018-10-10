@@ -81,7 +81,7 @@ namespace KazNet
                 packet.Add(byte.Parse(ipAddress[1]));
                 packet.Add(byte.Parse(ipAddress[2]));
                 packet.Add(byte.Parse(ipAddress[3]));
-                packet.AddRange(BitConverter.GetBytes((short)_port));
+                packet.AddRange(BitConverter.GetBytes((ushort)_port));
                 return packet.ToArray();
             }
             catch
@@ -100,7 +100,7 @@ namespace KazNet
                 packet.Add(byte.Parse(ipAddress[1]));
                 packet.Add(byte.Parse(ipAddress[2]));
                 packet.Add(byte.Parse(ipAddress[3].Split(new char[] { ':' })[0]));
-                packet.AddRange(BitConverter.GetBytes(short.Parse(ipAddress[3].Split(new char[] { ':' })[1])));
+                packet.AddRange(BitConverter.GetBytes(ushort.Parse(ipAddress[3].Split(new char[] { ':' })[1])));
                 return packet.ToArray();
             }
             catch
@@ -211,7 +211,7 @@ namespace KazNet
                 text += ".";
                 text += _packet[_index + 3].ToString();
                 text += ":";
-                text += BitConverter.ToInt16(_packet, _index + 4).ToString();
+                text += BitConverter.ToUInt16(_packet, _index + 4).ToString();
                 _index += 6;
             }
             catch
