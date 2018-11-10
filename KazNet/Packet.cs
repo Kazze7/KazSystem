@@ -7,7 +7,6 @@ namespace KazNet
     public static class Packet
     {
         #region Encode
-
         public static byte Encode(bool _bool)
         {
             try

@@ -9,28 +9,29 @@ using System.Threading.Tasks;
 
 namespace KazNet
 {
-    public class ClientNet
+    public class ClientSocket
     {
-        bool isRunning = false;
-
         Socket socket;
         string ipAddress;
         int port;
         int bufferSize;
         byte[] buffer;
+        bool isRunning = false;
 
         Thread clientThread;
+
         Thread queueThread;
-        Queue<PacketData> packetQueue = new Queue<PacketData>();
         AutoResetEvent packetQueueCheck = new AutoResetEvent(false);
-        public delegate void DecodePacketMethod(PacketData _packetData);
-        DecodePacketMethod decodePacketMethod;
+        Queue<PacketData> packetQueue = new Queue<PacketData>();
+
+        public delegate void StatusMethod(bool _status);
+        StatusMethod statusMethod;
         public delegate void ConnectMethod(Socket _socket);
         ConnectMethod connectMethod;
         public delegate void DisconnectMethod(Socket _socket);
         DisconnectMethod disconnectMethod;
-        public delegate void StatusMethod(bool _status);
-        StatusMethod statusMethod;
+        public delegate void DecodePacketMethod(PacketData _packetData);
+        DecodePacketMethod decodePacketMethod;
 
         public Socket GetSocket()
         {
@@ -41,7 +42,7 @@ namespace KazNet
             return isRunning;
         }
 
-        public ClientNet(string _ipAddress, int _port, ConnectMethod _connect = null, DisconnectMethod _disconnect = null, DecodePacketMethod _decodePacket = null, int _bufferSize = 1024)
+        public ClientSocket(string _ipAddress, int _port, ConnectMethod _connect = null, DisconnectMethod _disconnect = null, DecodePacketMethod _decodePacket = null, int _bufferSize = 1024)
         {
             ipAddress = _ipAddress;
             port = _port;
@@ -51,7 +52,7 @@ namespace KazNet
             bufferSize = _bufferSize;
             buffer = new byte[_bufferSize];
         }
-        public ClientNet(string _ipAddressPort, ConnectMethod _connect = null, DisconnectMethod _disconnect = null, DecodePacketMethod _decodePacket = null, int _bufferSize = 1024)
+        public ClientSocket(string _ipAddressPort, ConnectMethod _connect = null, DisconnectMethod _disconnect = null, DecodePacketMethod _decodePacket = null, int _bufferSize = 1024)
         {
             ipAddress = _ipAddressPort.Split(new char[] { ':' })[0];
             port = int.Parse(_ipAddressPort.Split(new char[] { ':' })[1]);
@@ -68,43 +69,59 @@ namespace KazNet
             {
                 isRunning = true;
                 statusMethod = _statusMethod;
-                clientThread = new Thread(Connect);
-                clientThread.Start();
-                queueThread = new Thread(StartQueue);
-                queueThread.Start();
+                StartClientThread();
             }
             else
             {
                 Console.WriteLine("ClientNet: Server already running");
+                _statusMethod?.Invoke(false);
             }
         }
         public void Stop()
+        {
+            StopClientThread();
+        }
+        #region Threads
+        void StartClientThread()
+        {
+            clientThread = new Thread(Connect);
+            clientThread.Start();
+        }
+        void StopClientThread()
         {
             isRunning = false;
             if (clientThread != null)
             {
                 clientThread.Join();
                 clientThread = null;
-                //clientThread.Abort();
                 Console.WriteLine("ClientNet: Stop client thread");
             }
-            packetQueueCheck.Set();
-            if (queueThread != null)
-            {
-                queueThread.Join();
-                queueThread = null;
-                //queueThread.Abort();
-                Console.WriteLine("ClientNet: Stop queue thread");
-            }
+            StopQueueThread();
             if (socket != null)
             {
                 socket.Close();
                 socket = null;
                 Console.WriteLine("ClientNet: Close socket");
             }
+        }
+        void StartQueueThread()
+        {
+            queueThread = new Thread(StartQueue);
+            queueThread.Start();
+        }
+        void StopQueueThread()
+        {
+            packetQueueCheck.Set();
+            if (queueThread != null)
+            {
+                queueThread.Join();
+                queueThread = null;
+                Console.WriteLine("ClientNet: Stop queue thread");
+            }
             packetQueue.Clear();
         }
-
+        #endregion
+        #region ClientHandler
         void Connect()
         {
             try
@@ -116,7 +133,7 @@ namespace KazNet
             {
                 statusMethod?.Invoke(false);
                 Console.WriteLine("ClientNet: 1. " + ex.ToString());
-                Stop();
+                StopClientThread();
             }
         }
         void AcceptConnection(IAsyncResult _asyncResult)
@@ -127,13 +144,14 @@ namespace KazNet
                 serverSocket.EndConnect(_asyncResult);
                 statusMethod?.Invoke(true);
                 connectMethod?.Invoke(serverSocket);
+                StartQueueThread();
                 serverSocket.BeginReceive(buffer, 0, bufferSize, SocketFlags.None, new AsyncCallback(ReceivePacket), serverSocket);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("ClientNet: 2. " + ex.ToString());
                 statusMethod?.Invoke(false);
-                Stop();
+                StopClientThread();
             }
         }
         void ReceivePacket(IAsyncResult _asyncResult)
@@ -162,7 +180,6 @@ namespace KazNet
                 }
                 else
                 {
-                    //Console.WriteLine("ClientNet: Server " + socket.RemoteEndPoint + " disconnect");
                     Disconnect();
                 }
             }
@@ -170,8 +187,11 @@ namespace KazNet
             {
                 Console.WriteLine("ClientNet: 3. " + ex.ToString());
                 Disconnect();
-                Stop();
             }
+        }
+        public void SendPacket(List<byte> _packet)
+        {
+            SendPacket(_packet.ToArray());
         }
         public void SendPacket(byte[] _packet)
         {
@@ -191,21 +211,15 @@ namespace KazNet
             catch (Exception ex)
             {
                 Console.WriteLine("ClientNet: 4. " + ex.ToString());
-                Stop();
             }
         }
         public void Disconnect()
         {
             disconnectMethod?.Invoke(socket);
-            if(socket != null){
-                socket.Close();
-            }
+            StopClientThread();
         }
-        void AddPacket(PacketData _packetData)
-        {
-            packetQueue.Enqueue(_packetData);
-            packetQueueCheck.Set();
-        }
+        #endregion
+        #region QueueHandler
         void StartQueue()
         {
             while (isRunning)
@@ -214,5 +228,11 @@ namespace KazNet
                 else
                     packetQueueCheck.WaitOne();
         }
+        void AddPacket(PacketData _packetData)
+        {
+            packetQueue.Enqueue(_packetData);
+            packetQueueCheck.Set();
+        }
+        #endregion
     }
 }
