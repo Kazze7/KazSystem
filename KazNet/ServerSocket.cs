@@ -149,9 +149,9 @@ namespace KazNet
             }
             catch (Exception ex)
             {
-                statusMethod?.Invoke(false);
-                Console.WriteLine("ServerNet: 1. " + ex.ToString());
+                Console.WriteLine("ServerNet: 1. " + ex.Message);
                 StopServerThread();
+                statusMethod?.Invoke(false);
             }
         }
         void AcceptConnection(IAsyncResult _asyncResult)
@@ -174,7 +174,7 @@ namespace KazNet
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ServerNet: 2. " + ex.ToString());
+                Console.WriteLine("ServerNet: 2. " + ex.Message);
             }
         }
 
@@ -210,7 +210,7 @@ namespace KazNet
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ServerNet: 3. " + ex.ToString());
+                Console.WriteLine("ServerNet: 3. " + ex.Message);
                 Disconnect(clientSocket);
             }
         }
@@ -236,7 +236,7 @@ namespace KazNet
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ServerNet: 4. " + ex.ToString());
+                Console.WriteLine("ServerNet: 4. " + ex.Message);
             }
         }
 

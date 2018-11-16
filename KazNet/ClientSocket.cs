@@ -131,9 +131,9 @@ namespace KazNet
             }
             catch (Exception ex)
             {
-                statusMethod?.Invoke(false);
-                Console.WriteLine("ClientNet: 1. " + ex.ToString());
+                Console.WriteLine("ClientNet: 1. " + ex.Message);
                 StopClientThread();
+                statusMethod?.Invoke(false);
             }
         }
         void AcceptConnection(IAsyncResult _asyncResult)
@@ -149,9 +149,9 @@ namespace KazNet
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ClientNet: 2. " + ex.ToString());
-                statusMethod?.Invoke(false);
+                Console.WriteLine("ClientNet: 2. " + ex.Message);
                 StopClientThread();
+                statusMethod?.Invoke(false);
             }
         }
         void ReceivePacket(IAsyncResult _asyncResult)
@@ -185,7 +185,7 @@ namespace KazNet
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ClientNet: 3. " + ex.ToString());
+                Console.WriteLine("ClientNet: 3. " + ex.Message);
                 Disconnect();
             }
         }
@@ -210,13 +210,13 @@ namespace KazNet
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ClientNet: 4. " + ex.ToString());
+                Console.WriteLine("ClientNet: 4. " + ex.Message);
             }
         }
         public void Disconnect()
         {
-            disconnectMethod?.Invoke(socket);
             StopClientThread();
+            disconnectMethod?.Invoke(socket);
         }
         #endregion
         #region QueueHandler
