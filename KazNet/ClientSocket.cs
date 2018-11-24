@@ -62,7 +62,17 @@ namespace KazNet
             bufferSize = _bufferSize;
             buffer = new byte[_bufferSize];
         }
-        
+        public void ChangeIpAddress(string _ipAddress, int _port)
+        {
+            ipAddress = _ipAddress;
+            port = _port;
+        }
+        public void ChangeIpAddress(string _ipAddressPort)
+        {
+            ipAddress = _ipAddressPort.Split(new char[] { ':' })[0];
+            port = int.Parse(_ipAddressPort.Split(new char[] { ':' })[1]);
+        }
+
         public void Start(StatusMethod _statusMethod = null)
         {
             if (!isRunning)

@@ -66,6 +66,14 @@ namespace KazNet
             bufferSize = _bufferSize;
             backLog = _backLog;
         }
+        public void ChangePort(int _port)
+        {
+            port = _port;
+        }
+        public void ChangePort(string _ipAddressPort)
+        {
+            port = int.Parse(_ipAddressPort.Split(new char[] { ':' })[1]);
+        }
 
         public void Start(StatusMethod _statusMethod = null)
         {

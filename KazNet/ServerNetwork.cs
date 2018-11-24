@@ -37,6 +37,14 @@ namespace KazNet
         {
             serverSocket.Disconnect(_socket);
         }
+        public void ChangePort(int _port)
+        {
+            serverSocket.ChangePort(_port);
+        }
+        public void ChangePort(string _ipAddressPort)
+        {
+            serverSocket.ChangePort(_ipAddressPort);
+        }
 
         public abstract void Status(bool _status);
         public abstract void Connection(Socket _socket);

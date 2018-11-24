@@ -37,6 +37,14 @@ namespace KazNet
         {
             clientSocket.Disconnect();
         }
+        public void ChangeIpAddress(string _ipAddress, int _port)
+        {
+            clientSocket.ChangeIpAddress(_ipAddress, _port);
+        }
+        public void ChangeIpAddress(string _ipAddressPort)
+        {
+            clientSocket.ChangeIpAddress(_ipAddressPort);
+        }
 
         public abstract void Status(bool _status);
         public abstract void Connection(Socket _socket);
