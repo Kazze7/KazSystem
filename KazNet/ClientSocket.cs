@@ -107,12 +107,7 @@ namespace KazNet
                 Console.WriteLine("ClientNet: Stop client thread");
             }
             StopQueueThread();
-            if (socket != null)
-            {
-                socket.Close();
-                socket = null;
-                Console.WriteLine("ClientNet: Close socket");
-            }
+            Disconnect();
         }
         void StartQueueThread()
         {
@@ -190,13 +185,15 @@ namespace KazNet
                 }
                 else
                 {
-                    Disconnect();
+                    StopClientThread();
+                    disconnectMethod?.Invoke(socket);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("ClientNet: 3. " + ex.Message);
-                Disconnect();
+                StopClientThread();
+                disconnectMethod?.Invoke(socket);
             }
         }
         public void SendPacket(List<byte> _packet)
@@ -225,8 +222,12 @@ namespace KazNet
         }
         public void Disconnect()
         {
-            StopClientThread();
-            disconnectMethod?.Invoke(socket);
+            if (socket != null)
+            {
+                socket.Close();
+                socket = null;
+                Console.WriteLine("ClientNet: Close socket");
+            }
         }
         #endregion
         #region QueueHandler
