@@ -158,7 +158,7 @@ namespace KazNet
             catch (Exception ex)
             {
                 Console.WriteLine("ServerNet: 1. " + ex.Message);
-                StopServerThread();
+                //StopServerThread();
                 statusMethod?.Invoke(false);
             }
         }

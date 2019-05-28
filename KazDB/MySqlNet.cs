@@ -29,6 +29,7 @@ namespace KazDB
             connectionString.UserID = _user;
             connectionString.Password = _password;
             connectionString.Pooling = _pooling;
+            connectionString.SslMode = MySqlSslMode.None;
         }
 
         public void Start(StatusMethod _statusMethod = null)
